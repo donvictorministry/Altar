@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Prayer App Admin</title>
+<link rel="stylesheet" href="styles.css">
+<script>
+(function () {
+  var d = document.documentElement, ua = navigator.userAgent || '';
+  var touch = (navigator.maxTouchPoints || 0) > 0;
+  var plat = navigator.platform || '';
+  var tv = /SMART-?TV|Tizen|Web0S|WebOS|CrKey|AppleTV|GoogleTV|BRAVIA|Roku|Xbox|PlayStation/i.test(ua);
+  var android = /Android/i.test(ua);                                   /* Android phones and tablets */
+  var apple = /iPhone|iPod|iPad/i.test(ua) || (plat === 'MacIntel' && (navigator.maxTouchPoints || 0) > 1);   /* iPhone, iPad */
+  if (tv || !touch || !(android || apple)) { d.classList.add('blocked'); }   /* Windows, macOS, Linux, ChromeOS, TVs are blocked */
+  try {
+    var t = localStorage.getItem('prayer_theme');
+    if (t === 'dark') { d.setAttribute('data-theme', 'dark'); }
+    var f = parseInt(localStorage.getItem('prayer_fs'), 10);
+    if (f >= 19 && f <= 23) { d.style.setProperty('--fs', f + 'px'); }
+  } catch (e) {}
+})();
+</script>
+</head>
+<body>
+
+<div id="blocker" role="alert">
+  <h2>Phones and tablets only</h2>
+  <p>This app works on Android and iPhone devices. Desktop computers are not supported. If you are on a phone or tablet and see this, turn off "Desktop site" in your browser menu.</p>
+</div>
+
+<div id="app">
+  <header class="topbar" style="grid-template-columns:1fr">
+    <h1 class="brand">Prayer App Admin</h1>
+  </header>
+  <main id="main">
+    <div class="admin-wrap">
+
+      <section class="card">
+        <h2>Connect</h2>
+        <div class="field"><label for="url">Web App URL</label>
+          <input id="url" type="text" placeholder="https://script.google.com/macros/s/.../exec" autocomplete="off" style="letter-spacing:0"></div>
+        <div class="field"><label for="pin">Admin PIN</label>
+          <div class="pw"><input id="pin" type="password" placeholder="From the Settings sheet" autocomplete="off" style="letter-spacing:0">
+            <button class="eye" id="btnEyePin" type="button" aria-label="Show PIN" aria-pressed="false"><svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path id="eyePath" d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg></button></div></div>
+        <div class="row"><button class="btn block" id="btnConnect" style="flex:1 1 100%">Connect and show stats</button></div>
+      </section>
+
+      <section class="card">
+        <h2>Code stats</h2>
+        <div class="stats">
+          <div class="stat"><b id="sTotal">-</b>Total</div>
+          <div class="stat"><b id="sUsed">-</b>In use</div>
+          <div class="stat"><b id="sFree">-</b>Available</div>
+          <div class="stat"><b id="sRev">-</b>Revoked</div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Generate new codes</h2>
+        <div class="field"><label for="count">How many (1 to 500)</label>
+          <input id="count" type="number" inputmode="numeric" value="200" min="1" max="500" style="letter-spacing:0"></div>
+        <div class="row"><button class="btn block" id="btnGen" style="flex:1 1 100%">Generate codes</button></div>
+        <textarea id="codesOut" readonly placeholder="New codes appear here" style="margin-top:12px"></textarea>
+        <div class="row">
+          <button class="btn outline" id="btnCopy">Copy all</button>
+          <button class="btn outline" id="btnCsv">Download CSV</button>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Manage one code</h2>
+        <div class="field"><label for="code">Access code</label>
+          <input id="code" type="text" placeholder="XXXX-XXXX" autocapitalize="characters" autocomplete="off"></div>
+        <div class="row">
+          <button class="btn outline" id="btnLook">Look up</button>
+          <button class="btn outline" id="btnReset">Reset device</button>
+          <button class="btn danger" id="btnRevoke">Revoke</button>
+          <button class="btn outline" id="btnRestore">Restore</button>
+        </div>
+        <div class="result" id="info" style="display:none"></div>
+      </section>
+
+      <section class="card">
+        <h2>Server cache</h2>
+        <p class="muted" style="margin-bottom:12px">After editing the Book sheet, clear the cache so readers get the new text.</p>
+        <button class="btn outline block" id="btnCache">Clear cache</button>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<div id="dialogHost"></div>
+<div id="toast" role="status" aria-live="polite"></div>
+<div id="spinner" role="status" aria-live="polite"><div class="spin-card"><div class="spin"></div><div id="spinMsg">Please wait...</div></div></div>
+
+<script>
+(function () {
+  'use strict';
+  if (document.documentElement.classList.contains('blocked')) { return; }
+  var $ = function (s) { return document.querySelector(s); };
+
+  /* --- small UI helpers (spinner, toast, dialog), same look as the app --- */
+  var spins = 0;
+  function spinner(on, msg) {
+    if (on) { spins++; $('#spinMsg').textContent = msg || 'Please wait...'; $('#spinner').classList.add('show'); }
+    else { spins = Math.max(0, spins - 1); if (!spins) { $('#spinner').classList.remove('show'); } }
+  }
+  var tt;
+  function toast(m, type) {
+    var t = $('#toast'); t.textContent = m; t.className = (type || '') + ' show';
+    clearTimeout(tt); tt = setTimeout(function () { t.className = type || ''; }, 2200);
+  }
+  function dialog(title, message, actions, type) {
+    return new Promise(function (resolve) {
+      var wrap = document.createElement('div'); wrap.className = 'dlg-scrim';
+      wrap.innerHTML = '<div class="dlg" role="alertdialog" aria-modal="true"><div class="dlg-ic ' + (type || '') + '"><svg viewBox="0 0 24 24" width="38" height="38" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg></div><h2></h2><p></p><div class="dlg-actions"></div></div>';
+      wrap.querySelector('h2').textContent = title; wrap.querySelector('p').textContent = message;
+      var box = wrap.querySelector('.dlg-actions');
+      (actions || [{ label: 'OK', value: true }]).forEach(function (a) {
+        var b = document.createElement('button'); b.className = 'btn ' + (a.style || ''); b.textContent = a.label;
+        b.onclick = function () { wrap.remove(); resolve(a.value); }; box.appendChild(b);
+      });
+      $('#dialogHost').appendChild(wrap);
+    });
+  }
+  function confirmBox(title, msg, label) {
+    return dialog(title, msg, [{ label: 'Cancel', value: false, style: 'outline' }, { label: label, value: true, style: 'danger' }]);
+  }
+
+  /* --- backend call: spinner on every request --- */
+  var ERR = {
+    pin: 'Wrong admin PIN.', invalid: 'Code not found.', count: 'Enter a number from 1 to 500.',
+    network: 'No connection or the URL is wrong.', timeout: 'The server took too long.', server: 'Server error. Try again.',
+    bad_action: 'Redeploy the script (see Deployment.md), then try again.'
+  };
+  function call(payload, label) {
+    var url = $('#url').value.trim(), pin = $('#pin').value.trim();
+    if (!/^https:\/\/script\.google\.com\//.test(url)) { toast('Paste the Web App URL first', 'error'); return Promise.resolve(null); }
+    if (!pin) { toast('Enter the admin PIN', 'error'); return Promise.resolve(null); }
+    try { localStorage.setItem('prayer_admin_url', url); sessionStorage.setItem('prayer_admin_pin', pin); } catch (e) {}
+    payload.pin = pin;
+    spinner(true, label);
+    var ctl = new AbortController(), timer = setTimeout(function () { ctl.abort(); }, 25000);
+    return fetch(url, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload), signal: ctl.signal })
+      .then(function (r) { return r.json(); })
+      .catch(function (e) { return { ok: false, error: e && e.name === 'AbortError' ? 'timeout' : 'network' }; })
+      .then(function (res) {
+        clearTimeout(timer); spinner(false);
+        if (!res || !res.ok) { dialog('Request failed', ERR[res && res.error] || 'Something went wrong.', null, 'error'); return null; }
+        return res;
+      });
+  }
+
+  function showStats(s) {
+    $('#sTotal').textContent = s.total; $('#sUsed').textContent = s.activated;
+    $('#sFree').textContent = s.available; $('#sRev').textContent = s.revoked;
+  }
+  function showInfo(i) {
+    var box = $('#info'); box.style.display = 'block';
+    box.textContent = 'Code ' + i.code + ' | Status: ' + i.status + ' | ' + (i.inUse ? 'In use on a device' : 'Not in use') +
+      (i.activatedAt ? ' | Activated: ' + i.activatedAt : '') + (i.lastSeen ? ' | Last seen: ' + i.lastSeen : '');
+  }
+  function stats() { return call({ action: 'admin_stats' }, 'Loading stats...').then(function (r) { if (r) { showStats(r.stats); } return r; }); }
+
+  var EYE = 'M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z';
+  var EYEOFF = 'M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z';
+  $('#btnEyePin').onclick = function () {
+    var inp = $('#pin'), show = inp.type === 'password';
+    inp.type = show ? 'text' : 'password';
+    this.setAttribute('aria-pressed', String(show));
+    this.setAttribute('aria-label', show ? 'Hide PIN' : 'Show PIN');
+    $('#eyePath').setAttribute('d', show ? EYEOFF : EYE);
+  };
+
+  $('#btnConnect').onclick = function () { stats().then(function (r) { if (r) { toast('Connected', 'success'); } }); };
+
+  $('#btnGen').onclick = function () {
+    var n = parseInt($('#count').value, 10);
+    if (!(n >= 1 && n <= 500)) { toast('Enter a number from 1 to 500', 'error'); return; }
+    call({ action: 'admin_generate', count: n }, 'Generating codes...').then(function (r) {
+      if (!r) { return; }
+      $('#codesOut').value = r.codes.join('\n');
+      toast(r.codes.length + ' codes added to the Codes sheet', 'success');
+      stats();
+    });
+  };
+  $('#btnCopy').onclick = function () {
+    var v = $('#codesOut').value;
+    if (!v) { toast('Generate codes first', 'error'); return; }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(v).then(function () { toast('Codes copied', 'success'); }, function () { toast('Copy failed. Select the text and copy it.', 'error'); });
+    } else { $('#codesOut').select(); toast('Select and copy the text', 'error'); }
+  };
+  $('#btnCsv').onclick = function () {
+    var v = $('#codesOut').value;
+    if (!v) { toast('Generate codes first', 'error'); return; }
+    var blob = new Blob(['Code\n' + v + '\n'], { type: 'text/csv' });
+    var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'access-codes.csv';
+    document.body.appendChild(a); a.click(); a.remove(); toast('CSV downloaded', 'success');
+  };
+
+  function manage(op) {
+    var code = $('#code').value.trim();
+    if (!code) { toast('Enter a code first', 'error'); return; }
+    var send = function () {
+      var p = op === 'lookup' ? { action: 'admin_lookup', code: code } : { action: 'admin_set', op: op, code: code };
+      call(p, 'Working...').then(function (r) {
+        if (!r) { return; }
+        showInfo(r.info);
+        if (op !== 'lookup') { toast('Done', 'success'); stats(); }
+      });
+    };
+    if (op === 'reset') { confirmBox('Reset device?', 'The user must enter this code again. The next device to use it becomes the owner.', 'Reset').then(function (ok) { if (ok) { send(); } }); }
+    else if (op === 'revoke') { confirmBox('Revoke code?', 'This code stops working on the next check.', 'Revoke').then(function (ok) { if (ok) { send(); } }); }
+    else { send(); }
+  }
+  $('#btnLook').onclick = function () { manage('lookup'); };
+  $('#btnReset').onclick = function () { manage('reset'); };
+  $('#btnRevoke').onclick = function () { manage('revoke'); };
+  $('#btnRestore').onclick = function () { manage('restore'); };
+
+  $('#btnCache').onclick = function () {
+    call({ action: 'admin_clear_cache' }, 'Clearing cache...').then(function (r) { if (r) { toast('Cache cleared', 'success'); } });
+  };
+
+  try {
+    $('#url').value = localStorage.getItem('prayer_admin_url') || '';
+    $('#pin').value = sessionStorage.getItem('prayer_admin_pin') || '';
+  } catch (e) {}
+})();
+</script>
+</body>
+</html>
