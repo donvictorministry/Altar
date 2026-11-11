@@ -461,7 +461,7 @@
       '<div class="pw"><input id="codeInput" type="password" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" enterkeyhint="go" placeholder="Enter code">' +
       '<button class="eye" id="btnEye" type="button" aria-label="Show code" aria-pressed="false">' + svg('eye') + '</button></div></div>' +
       '<button class="btn block" id="btnUnlock">Unlock App</button>' +
-      '<div class="lock-links"><button class="btn outline" id="btnNeedCode">' + svg('help', 22) + '<span>Need a code</span></button>' + back + '</div></div></div>';
+      '<div class="lock-links"><button class="btn outline" id="btnNeedCode"><span>Need a code</span>' + svg('help', 22) + '</button>' + back + '</div></div></div>';
     $('#btnUnlock').addEventListener('click', doUnlock);
     $('#codeInput').addEventListener('keydown', function (e) { if (e.key === 'Enter') { doUnlock(); } });
     $('#btnEye').addEventListener('click', function () {
