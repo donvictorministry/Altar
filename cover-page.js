@@ -173,7 +173,7 @@
               svgArtwork() +
             '</div>' +
 
-            '<div class="cvp-author">REV. DR. CHRIS JOHNSON</div>' +
+            '<div class="cvp-author">Rev. Don Victor, PhD</div>' +
 
             '<div class="cvp-btn-area">' +
               '<button class="cvp-btn" type="button" id="cvp-start">' +
