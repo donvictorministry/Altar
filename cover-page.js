@@ -1,9 +1,8 @@
 /* cover-page.js - Full-Screen Native Book Cover UI
- * - Strict 10px gap at the top to clear the QR code.
+ * Production-ready layout with pure SVG artwork (no external JPGs).
  * - "Our God Answers Prayers!" set to exactly 22px.
- * - Button forced to a single line with the yellow forward arrow.
- * - Integrated premium MFM aesthetic artwork (praying hands & chains).
- * - Optimized flexbox to eliminate wasted middle space.
+ * - Author and Button positioned perfectly to the designated markers.
+ * - Base artwork features a premium glowing sun and minimalist praying hands.
  */
 (function () {
   'use strict';
@@ -24,32 +23,30 @@
         /* The Main White Cover Face */
         '.cvp-face{flex:1;display:flex;flex-direction:column;position:relative}',
         
-        /* 1. Strict 10px Top Gap to clear QR Code */
-        '.cvp-top-gap{height:10px;min-height:10px;flex:none}',
+        /* 1. Top Gap (Pushes the title down naturally) */
+        '.cvp-top-gap{height:max(env(safe-area-inset-top), 6vh);flex:none}',
         
-        /* Typography Header (Centered per book standards) */
+        /* Typography Header */
         '.cvp-head{text-align:center;padding:0 16px;flex:none}',
         '.cvp-h1{font-size:clamp(32px, 9vw, 48px);font-weight:900;font-style:italic;line-height:1.1;margin:0}',
         '.cvp-h2{font-size:clamp(56px, 16vw, 92px);font-weight:900;font-style:italic;color:#1877F2;line-height:1;margin:0;letter-spacing:-1px}',
         '.cvp-curve{width:140px;height:16px;margin:8px auto;display:block}',
         
-        /* 2. Subtitle set to exactly 22px */
-        '.cvp-sub{font-size:22px;font-weight:700;color:#3C4257;margin-top:4px;line-height:1.2}',
+        /* The specific 22px subtitle requirement */
+        '.cvp-sub{font-size:22px;font-weight:700;color:#3C4257;margin-top:12px;line-height:1.2}',
         'html[data-theme="dark"] .cvp-sub{color:#D5D9E0}',
         
-        /* 3. Author Name */
-        '.cvp-author{text-align:center;font-weight:800;font-size:clamp(14px, 3.5vw, 16px);color:#1877F2;letter-spacing:1px;margin-top:clamp(16px, 3vh, 24px);padding:0 16px;flex:none}',
+        /* 2. Author Name (Blue Marker) */
+        '.cvp-author{text-align:center;font-weight:800;font-size:clamp(15px, 4vw, 17px);color:#1877F2;letter-spacing:1px;margin-top:clamp(24px, 6vh, 48px);padding:0 16px;flex:none}',
         
-        /* 4. Single-Line Begin Button */
-        '.cvp-btn-area{display:flex;justify-content:center;padding:0 20px;margin-top:clamp(16px, 3vh, 24px);flex:none;z-index:10}',
-        '.cvp-btn{background:#1877F2;color:#FFFFFF;border:3px solid #FFD54A;border-radius:32px;padding:0 20px 0 24px;min-height:56px;font-size:1.15rem;font-weight:800;display:flex;align-items:center;justify-content:center;gap:8px;width:100%;max-width:340px;box-shadow:0 8px 20px rgba(24,119,242,0.35);animation:cvpup .6s ease-out;cursor:pointer;white-space:nowrap;flex-wrap:nowrap}',
+        /* 3. Begin Button (Bottom Red Marker) */
+        '.cvp-btn-area{display:flex;justify-content:center;padding:0 20px;margin-top:clamp(24px, 5vh, 40px);flex:none;z-index:10}',
+        '.cvp-btn{background:#1877F2;color:#FFFFFF;border:3px solid #FFD54A;border-radius:32px;padding:0 24px;min-height:56px;font-size:1.15rem;font-weight:800;display:flex;align-items:center;justify-content:center;width:100%;max-width:340px;box-shadow:0 8px 20px rgba(24,119,242,0.35);animation:cvpup .6s ease-out;cursor:pointer}',
         '.cvp-btn:active{transform:scale(0.96)}',
-        '.cvp-btn-icon{width:22px;height:22px;flex:none;color:#FFD54A}',
         
-        /* 5. Photorealistic Artwork Area (Absorbs the remaining space and anchors to bottom) */
-        '.cvp-art-area{flex:1;display:flex;align-items:flex-end;justify-content:center;position:relative;overflow:hidden;margin-top:16px}',
-        '.cvp-scene{width:100%;height:100%;object-fit:cover;object-position:bottom center;mix-blend-mode:multiply}',
-        'html[data-theme="dark"] .cvp-scene{mix-blend-mode:screen}',
+        /* 4. Praying Hands Artwork Area (Anchored to bottom) */
+        '.cvp-art-area{flex:1;display:flex;align-items:flex-end;justify-content:center;position:relative;overflow:hidden}',
+        '.cvp-scene{width:100%;height:100%;max-height:40vh;object-fit:cover;object-position:bottom center}',
         
         '@keyframes cvpup{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:none}}'
       ].join('');
@@ -59,8 +56,27 @@
       return '<svg class="cvp-curve" viewBox="0 0 100 20" preserveAspectRatio="none" aria-hidden="true"><path d="M0 10 Q50 20 100 10" fill="none" stroke="#FFD54A" stroke-width="4" stroke-linecap="round"/></svg>';
     }
 
-    function svgArrow() {
-      return '<svg class="cvp-btn-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    function svgArtwork() {
+      /* This draws the radiant glowing sun and the elegant praying hands/flame silhouette entirely in code. */
+      return '<svg class="cvp-scene" viewBox="0 0 200 160" preserveAspectRatio="xMidYMax meet" aria-hidden="true">' +
+        '<defs>' +
+        '<radialGradient id="sunGlow" cx="50%" cy="100%" r="100%">' +
+        '<stop offset="0%" stop-color="#FFD54A" stop-opacity="1"/>' +
+        '<stop offset="45%" stop-color="#FFD54A" stop-opacity="0.35"/>' +
+        '<stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>' +
+        '</radialGradient>' +
+        '</defs>' +
+        '<!-- The Divine Glow -->' +
+        '<rect width="200" height="160" fill="url(#sunGlow)"/>' +
+        '<circle cx="100" cy="150" r="55" fill="#FFD54A" opacity="0.6"/>' +
+        '<!-- The Praying Hands (Two-Toned Silhouette) -->' +
+        '<g transform="translate(0, 10)">' +
+          '<!-- Left Hand -->' +
+          '<path d="M100 150 C80 120 75 80 85 50 C90 35 100 20 100 20 C100 20 110 35 115 50 C125 80 120 120 100 150 Z" fill="#0A2F6B"/>' +
+          '<!-- Right Hand (Highlights the palms pressed together) -->' +
+          '<path d="M100 150 C85 120 82 85 92 60 C95 50 100 40 100 40 C100 40 105 50 108 60 C118 85 115 120 100 150 Z" fill="#1877F2"/>' +
+        '</g>' +
+        '</svg>';
     }
 
     function render(container, onBegin) {
@@ -86,13 +102,10 @@
             '</div>' +
             '<div class="cvp-author">REV. DR. CHRIS JOHNSON</div>' +
             '<div class="cvp-btn-area">' +
-              '<button class="cvp-btn" type="button" id="cvp-start">' +
-                '<span>BEGIN THE JOURNEY</span>' +
-                svgArrow() +
-              '</button>' +
+              '<button class="cvp-btn" type="button" id="cvp-start">BEGIN THE JOURNEY</button>' +
             '</div>' +
             '<div class="cvp-art-area">' +
-              '<img class="cvp-scene" src="watermarked_img_14714719304370825188.jpg" alt="Praying Hands with Broken Chains">' +
+              svgArtwork() +
             '</div>' +
           '</div>' +
         '</section>';
@@ -104,7 +117,7 @@
       container.querySelector('#cvp-start').addEventListener('click', begin);
     }
 
-    window.CoverPage = { version: '8.0.0', render: render };
+    window.CoverPage = { version: '6.0.0', render: render };
   } catch (err) {
     /* Fails gracefully if interrupted */
   }
