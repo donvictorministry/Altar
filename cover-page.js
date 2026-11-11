@@ -5,7 +5,7 @@
     var STYLE_ID = 'cvp-style';
 
     /* QUICK PHOTO REPLACEMENT */
-    var AUTHOR_PHOTO_URL = 'YOUR_PHOTO_URL_HERE';
+    var AUTHOR_PHOTO_URL = 'https://app.donvictorministry.org.ng/Altar/dr-dvg.png';
 
     var PHOTO_PLACEHOLDER =
       'data:image/svg+xml;charset=UTF-8,' +
