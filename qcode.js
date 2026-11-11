@@ -1,14 +1,16 @@
-/* qcode.js - a clean, scannable QR code on the far right corner of the cover page.
+/* qcode.js - the QR code of The Prayer App, shown on the unlock screen in the place of the lock icon.
  *
  * STANDALONE: it carries its own QR encoder, CSS and JavaScript. No library, no internet.
  * The QR code opens your app address and nothing else.
  * Your logo sits in the middle of it (see CONFIG.logo below).
- * The app works without this file. If you delete it (and its script tag in index.html),
- * the cover simply shows no QR code. Nothing else is affected.
+ * Tap the QR code to enlarge it. The enlarged view shows only: the QR code, the author name,
+ * the app address, and the four contact buttons (email, WhatsApp, Facebook, phone).
+ * The author and the four contacts come from book.js (META).
  *
- * How it connects: it watches for the cover page (the element named in CONFIG.host)
- * and places the QR badge inside it. cover-page.js is not touched.
- * Tap the badge to enlarge it so another phone can scan it easily.
+ * How it connects: it watches for the lock icon on the unlock screen (the element named in
+ * CONFIG.host), puts the QR badge in its place and hides the icon. app.js and cover-page.js
+ * are not touched. If you delete this file (and its script tag in index.html), the unlock
+ * screen simply shows the lock icon again. Nothing else is affected.
  */
 (function () {
   'use strict';
@@ -21,16 +23,13 @@
       url: '',                  /* the app address the QR opens. Leave empty to use the address this page is opened at */
       logo: 'https://REPLACE-WITH-YOUR-HOSTED-URL/logo.png',   /* your hosted logo, shown in the middle of the QR */
       logoSize: 20,             /* logo width as a percent of the badge. Keep it 22 or less so the code still scans */
-      host: '.cvp',             /* the cover page element the badge is placed in */
-      size: 112,                /* badge size in pixels on the cover */
-      top: 14,                  /* distance from the top edge, in pixels */
-      right: 14,                /* distance from the right edge, in pixels */
+      host: '.lock-ic',         /* the element the QR badge replaces (the lock icon on the unlock screen) */
+      size: 112,                /* biggest badge size in pixels (it gets smaller on short screens) */
       dark: '#0A3F8F',          /* QR dots. Keep this dark so phones can read it */
       light: '#FFFFFF',         /* QR background. Keep this white */
       ring: '#E9B93C',          /* thin gold border around the badge */
       label: 'QR code for The Prayer App. Tap to enlarge.',
-      bigTitle: 'Scan to open The Prayer App',
-      bigHint: 'Point your phone camera at the code. Tap anywhere to close.',
+      closeLabel: 'Close',
       bigSize: 300              /* enlarged size in pixels (it never goes wider than the screen) */
     };
     /* ================= END OF THE EDIT AREA ================= */
@@ -235,13 +234,13 @@
       out.push('<rect x="' + (-q) + '" y="' + (-q) + '" width="' + (n + 2 * q) + '" height="' + (n + 2 * q) + '" rx="2.2" fill="' + CONFIG.light + '"/>');
       for (y = 0; y < n; y++) {
         for (x = 0; x < n; x++) {
-          if (qr.m[y][x] && !inFinder(x, y)) { out.push('<rect x="' + (x + 0.04) + '" y="' + (y + 0.04) + '" width="0.92" height="0.92" rx="0.3" fill="' + CONFIG.dark + '"/>'); }
+          if (qr.m[y][x] && !inFinder(x, y)) { out.push('<rect x="' + (x + 0.02) + '" y="' + (y + 0.02) + '" width="0.96" height="0.96" rx="0.3" fill="' + CONFIG.dark + '"/>'); }
         }
       }
       [[0, 0], [n - 7, 0], [0, n - 7]].forEach(function (c) {
-        out.push('<rect x="' + c[0] + '" y="' + c[1] + '" width="7" height="7" rx="1.9" fill="' + CONFIG.dark + '"/>');
-        out.push('<rect x="' + (c[0] + 1) + '" y="' + (c[1] + 1) + '" width="5" height="5" rx="1.3" fill="' + CONFIG.light + '"/>');
-        out.push('<rect x="' + (c[0] + 2) + '" y="' + (c[1] + 2) + '" width="3" height="3" rx="0.9" fill="' + CONFIG.dark + '"/>');
+        out.push('<rect x="' + c[0] + '" y="' + c[1] + '" width="7" height="7" rx="0.8" fill="' + CONFIG.dark + '"/>');
+        out.push('<rect x="' + (c[0] + 1) + '" y="' + (c[1] + 1) + '" width="5" height="5" rx="0.5" fill="' + CONFIG.light + '"/>');
+        out.push('<rect x="' + (c[0] + 2) + '" y="' + (c[1] + 2) + '" width="3" height="3" rx="0.3" fill="' + CONFIG.dark + '"/>');
       });
       out.push('</svg>');
       return out.join('');
@@ -253,8 +252,22 @@
       return '<div class="qcd-wrap" style="width:' + sizeCss + ';height:' + sizeCss + '">' + svg(qr, 100) + logo + '</div>';
     }
 
+    /* The address the QR opens: the one set in CONFIG.url, or the address this page is opened at. */
     function address() {
       return CONFIG.url || location.href.split('#')[0].split('?')[0];
+    }
+
+    function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+
+    /* The four contact icons (same paths as icons.js, kept here so this file stands alone). */
+    var ICONS = {
+      mail: 'M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z',
+      whatsapp: 'M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z',
+      facebook: 'M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z',
+      phone: 'M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z'
+    };
+    function icon(name, size) {
+      return '<svg viewBox="0 0 24 24" width="' + size + '" height="' + size + '" fill="currentColor" aria-hidden="true"><path d="' + ICONS[name] + '"/></svg>';
     }
 
     var STYLE_ID = 'qcd-style';
@@ -263,44 +276,68 @@
       var st = document.createElement('style');
       st.id = STYLE_ID;
       st.textContent = [
-        '.qcd{position:absolute;z-index:6;top:calc(env(safe-area-inset-top,0px) + ' + CONFIG.top + 'px);right:calc(env(safe-area-inset-right,0px) + ' + CONFIG.right + 'px);',
-        'width:' + CONFIG.size + 'px;height:' + CONFIG.size + 'px;padding:0;margin:0;border:2px solid ' + CONFIG.ring + ';border-radius:16px;overflow:hidden;cursor:pointer;',
-        'background:' + CONFIG.light + ';box-shadow:0 6px 18px rgba(6,38,90,.4);animation:qcdin .8s cubic-bezier(.2,0,0,1) .6s both}',
+        /* the badge on the unlock screen */
+        '.qcd-gone{display:none!important}',
+        '.qcd{position:relative;flex:none;display:block;width:clamp(72px,13dvh,' + CONFIG.size + 'px);aspect-ratio:1/1;margin:0 auto;padding:0;border:2px solid ' + CONFIG.ring + ';border-radius:16px;overflow:hidden;cursor:pointer;',
+        'background:' + CONFIG.light + ';box-shadow:0 6px 18px rgba(6,38,90,.3)}',
         '.qcd:active{transform:scale(.96)}',
-        '.qcd svg,.qcd-wrap svg{display:block;width:100%;height:100%}',
         '.qcd-wrap{position:relative;line-height:0}',
+        '.qcd svg,.qcd-wrap svg{display:block;width:100%;height:100%}',
         '.qcd-logo{position:absolute;left:50%;top:50%;width:' + CONFIG.logoSize + '%;aspect-ratio:1/1;transform:translate(-50%,-50%);border-radius:50%;padding:5%;',
         'background:' + CONFIG.light + ';box-shadow:0 0 0 1.5px rgba(10,63,143,.18),0 2px 6px rgba(6,38,90,.25);overflow:hidden}',
         '.qcd-logo img{display:block;width:100%;height:100%;border-radius:50%;object-fit:cover}',
-        '.qcd-big{position:fixed;inset:0;z-index:300;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:24px;',
-        'background:rgba(6,38,90,.86);color:#FFFFFF;text-align:center;font:19px/1.4 Roboto,Inter,system-ui,sans-serif;animation:qcdfade .25s ease-out}',
-        '.qcd-big h2{margin:0;font-size:24px;font-weight:700}',
-        '.qcd-big p{margin:0;opacity:.92}',
-        '.qcd-card{padding:10px;border-radius:24px;border:3px solid ' + CONFIG.ring + ';background:' + CONFIG.light + ';box-shadow:0 12px 40px rgba(0,0,0,.45);line-height:0}',
-        '@keyframes qcdin{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:none}}',
+        /* the enlarged view */
+        '.qcd-big{position:fixed;inset:0;z-index:300;display:flex;align-items:center;justify-content:center;padding:24px;',
+        'background:rgba(6,38,90,.86);font:19px/1.4 Roboto,Inter,system-ui,sans-serif;animation:qcdfade .25s ease-out}',
+        '.qcd-card{position:relative;width:100%;max-width:380px;display:flex;flex-direction:column;align-items:center;gap:12px;padding:22px 18px 20px;border-radius:28px;',
+        'border:3px solid ' + CONFIG.ring + ';background:' + CONFIG.light + ';color:#121212;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,.45);max-height:calc(100dvh - 32px);overflow-y:auto}',
+        '.qcd-card .qcd-wrap{flex:none}',
+        '.qcd-author{margin:0;font-size:19px;font-weight:700;line-height:1.3;color:#121212}',
+        '.qcd-url{margin:0;font-size:19px;font-weight:600;line-height:1.35;color:#0F5FCC;overflow-wrap:anywhere;-webkit-user-select:text;user-select:text}',
+        '.qcd-cta{display:flex;justify-content:center;gap:16px;margin-top:4px}',
+        '.qcd-cta a{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;color:#FFFFFF;box-shadow:0 4px 12px rgba(0,0,0,.28)}',
+        '.qcd-cta .email{background:#8B0000}.qcd-cta .whatsapp{background:#25D366}.qcd-cta .facebook{background:#1877F2}.qcd-cta .phone{background:#1A8A44}',
+        '.qcd-x{position:absolute;top:8px;right:8px;width:44px;height:44px;border:0;border-radius:50%;background:transparent;color:#5F6368;cursor:pointer;display:grid;place-items:center}',
+        '.qcd-x:active{background:rgba(24,119,242,.12)}',
+        '@media (max-height:700px){.qcd{width:64px;border-radius:12px}}',
         '@keyframes qcdfade{from{opacity:0}to{opacity:1}}',
-        '@media (prefers-reduced-motion:reduce){.qcd,.qcd-big{animation:none}}'
+        '@media (prefers-reduced-motion:reduce){.qcd-big{animation:none}}'
       ].join('');
       document.head.appendChild(st);
     }
 
+    function contacts() {
+      var M = (window.Book && window.Book.meta) || {};
+      return { author: M.author || '', email: M.email || '', phone: M.phone || '', whatsapp: M.whatsapp || '', facebook: M.facebook || '' };
+    }
+
     function enlarge(qr) {
       if (document.querySelector('.qcd-big')) { return; }
+      var C = contacts(), url = address();
       var big = document.createElement('div');
       big.className = 'qcd-big';
       big.setAttribute('role', 'dialog');
       big.setAttribute('aria-modal', 'true');
-      big.innerHTML = '<h2></h2><div class="qcd-card">' + picture(qr, 'min(' + CONFIG.bigSize + 'px, calc(100dvw - 96px))') + '</div><p></p>';
-      big.querySelector('h2').textContent = CONFIG.bigTitle;
-      big.querySelector('p').textContent = CONFIG.bigHint;
+      big.innerHTML = '<div class="qcd-card">' +
+        '<button class="qcd-x" type="button" aria-label="' + esc(CONFIG.closeLabel) + '"><svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor" aria-hidden="true"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button>' +
+        picture(qr, 'min(' + CONFIG.bigSize + 'px, calc(100dvw - 120px))') +
+        '<p class="qcd-author">' + esc(C.author) + '</p>' +
+        '<p class="qcd-url">' + esc(url).replace(/([\/.])/g, '$1<wbr>') + '</p>' +
+        '<div class="qcd-cta">' +
+        '<a class="email" href="mailto:' + esc(C.email) + '" aria-label="Email us">' + icon('mail', 28) + '</a>' +
+        '<a class="whatsapp" href="https://wa.me/' + esc(String(C.whatsapp).replace(/[^0-9]/g, '')) + '" target="_blank" rel="noopener" aria-label="WhatsApp us">' + icon('whatsapp', 28) + '</a>' +
+        '<a class="facebook" href="' + esc(C.facebook) + '" target="_blank" rel="noopener" aria-label="Facebook">' + icon('facebook', 28) + '</a>' +
+        '<a class="phone" href="tel:' + esc(C.phone) + '" aria-label="Call us">' + icon('phone', 28) + '</a></div></div>';
       big.addEventListener('click', function () { big.remove(); });
+      big.querySelector('.qcd-card').addEventListener('click', function (e) { e.stopPropagation(); });
+      big.querySelector('.qcd-x').addEventListener('click', function () { big.remove(); });
       document.body.appendChild(big);
     }
 
     var cache = null, cacheUrl = '';
     function attach() {
       var host = document.querySelector(CONFIG.host);
-      if (!host || host.querySelector('.qcd')) { return; }
+      if (!host || !host.parentNode || host.parentNode.querySelector('.qcd')) { return; }
       var url = address();
       if (!cache || cacheUrl !== url) { cache = encode(url); cacheUrl = url; }
       if (!cache) { return; }
@@ -311,17 +348,18 @@
       b.setAttribute('aria-label', CONFIG.label);
       b.innerHTML = picture(cache, '100%');
       b.addEventListener('click', function () { enlarge(cache); });
-      host.appendChild(b);
+      host.parentNode.insertBefore(b, host);
+      host.classList.add('qcd-gone');
     }
 
-    /* The cover is drawn by the app after this file loads, so watch for it. */
+    /* The unlock screen is drawn by the app after this file loads, so watch for it. */
     if (!document.documentElement.classList.contains('blocked')) {
       new MutationObserver(attach).observe(document.documentElement, { childList: true, subtree: true });
       if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', attach); } else { attach(); }
     }
 
-    window.QCode = { version: '1.0.0', config: CONFIG, encode: encode, attach: attach };
+    window.QCode = { version: '2.0.0', config: CONFIG, encode: encode, attach: attach };
   } catch (err) {
-    /* If this file has a mistake, the cover simply shows no QR code. */
+    /* If this file has a mistake, the unlock screen simply shows the lock icon. */
   }
 })();
