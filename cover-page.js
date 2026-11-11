@@ -10,11 +10,11 @@
     var PHOTO_PLACEHOLDER =
       'data:image/svg+xml;charset=UTF-8,' +
       encodeURIComponent(
-        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 350 450">' +
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 350 500">' +
         '<rect width="350" height="450" fill="#EAF0F8"/>' +
         '<path d="M0 0H350V450H0Z" fill="#DCE6F3"/>' +
         '<path d="M25 25H325V425H25Z" fill="none" stroke="#FFFFFF" stroke-width="2"/>' +
-        '<text x="175" y="230" text-anchor="middle" font-family="Arial" font-size="22" font-weight="bold" fill="#8296B2">YOUR PHOTO</text>' +
+        '<text x="175" y="230" text-anchor="middle" font-family="Arial" font-size="22" font-weight="bold" fill="#8296B2">MY PHOTO</text>' +
         '</svg>'
       );
 
