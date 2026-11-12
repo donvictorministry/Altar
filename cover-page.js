@@ -5,7 +5,7 @@
     var STYLE_ID = 'cvp-style';
 
     /* QUICK PHOTO REPLACEMENT */
-    var AUTHOR_PHOTO_URL = 'YOUR_PHOTO_URL_HERE';
+    var AUTHOR_PHOTO_URL = 'https://app.donvictorministry.org.ng/Altar/dr-dvg.png';
 
     var PHOTO_PLACEHOLDER =
       'data:image/svg+xml;charset=UTF-8,' +
@@ -25,14 +25,12 @@
 
         /* BOOK SPINE */
         '.cvp-spine{width:10vw;min-width:20px;flex:none;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:space-evenly;gap:20px;padding:max(env(safe-area-inset-top),16px) 2px max(env(safe-area-inset-bottom),16px);background:#1877F2;border-right:2px solid #D4AF37}',
-
         '.cvp-spine-title,.cvp-spine-author{writing-mode:vertical-rl;transform:rotate(180deg);white-space:nowrap;text-align:center;color:#FFFFFF}',
 
         '.cvp-spine-title{font-family:Georgia,serif;font-size:20px;font-weight:700;letter-spacing:.5px}',
 
         '.cvp-spine-author{font-family:Georgia,serif;font-size:15px;font-weight:500;letter-spacing:.3px}',
 
-        /* FRONT COVER */
         '.cvp-face{flex:1;min-width:0;height:100%;position:relative;display:flex;flex-direction:column;overflow:hidden;background:radial-gradient(ellipse at 50% 55%,rgba(24,119,242,.18),transparent 58%),linear-gradient(145deg,#102C50,#071A35 65%,#061326)}',
 
         '.cvp-face:before{content:"";position:absolute;inset:8px;border:1px solid rgba(212,175,55,.45);pointer-events:none}',
@@ -57,8 +55,6 @@
         '.cvp-author-photo{display:block;width:100%;height:100%;object-fit:cover;object-position:center center;background:#EAF0F8;border:3px solid #FFFFFF;border-radius:50%}',
         /* AUTHOR NAME */
         '.cvp-author{text-align:center;font-family:Georgia,serif;font-size:clamp(19px,5.2vw,22px);font-weight:900;letter-spacing:.7px;line-height:1.3;color:#E8CA78;padding:0 5px;margin:12px 0 0;flex:none;position:relative;z-index:3}',
-
-        /* ENTRY BUTTON */
         '.cvp-btn-area{display:flex;justify-content:center;padding:0 12px;margin-top:22px;flex:none;position:relative;z-index:5}',
         '.cvp-btn{width:100%;min-height:64px;background:#1877F2;color:#FFFFFF;border:2px solid #D4AF37;border-radius:7px;padding:12px 8px;font-family:Arial,sans-serif;font-size:clamp(17px,4.5vw,21px);font-weight:900;letter-spacing:.7px;box-shadow:0 8px 24px rgba(0,0,0,.3);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;white-space:nowrap}',
         '.cvp-btn-icon{width:24px;height:24px;flex:none;color:#E8CA78}',
@@ -96,10 +92,9 @@
       container.innerHTML =
         '<section class="cvp" role="region" aria-label="The Prayer App Book Cover">' +
 
-          /* BOOK SPINE: ONLY TWO INSCRIPTIONS */
           '<aside class="cvp-spine">' +
-            '<div class="cvp-spine-title">The Prayer App</div>' +
-            '<div class="cvp-spine-author">Rev. Dr. Chris Johnson</div>' +
+            '<div class="cvp-spine-title">THE PRAYER APP</div>' +
+            '<div class="cvp-spine-author">REV. DON VICTOR, PHD</div>' +
           '</aside>' +
 
           /* FRONT COVER */
@@ -111,23 +106,19 @@
               '<h1 class="cvp-h1">THE PRAYER</h1>' +
               '<h2 class="cvp-h2">APP</h2>' +
               svgCurve() +
-              '<div class="cvp-sub">Our God Answers Prayers!</div>' +
+              '<div class="cvp-sub">My God Answers Prayers!</div>' +
             '</header>' +
-
-            /* PVC 35:45 PHOTOGRAPH */
             '<div class="cvp-photo-area">' +
               '<div class="cvp-photo-frame">' +
                 '<img class="cvp-author-photo" ' +
                   'src="' + PHOTO_PLACEHOLDER + '" ' +
-                  'alt="Rev. Dr. Chris Johnson" ' +
+                  'alt="Dr. Don Victor" ' +
                   'id="cvp-author-photo">' +
               '</div>' +
             '</div>' +
 
             /* AUTHOR */
-            '<div class="cvp-author">REV. DR. CHRIS JOHNSON</div>' +
-
-            /* BEGIN JOURNEY */
+            '<div class="cvp-author">Rev. Don Victor, PhD</div>' +
             '<div class="cvp-btn-area">' +
               '<button class="cvp-btn" type="button" id="cvp-start">' +
                 '<span>BEGIN THE JOURNEY</span>' +
@@ -139,7 +130,6 @@
           '</main>' +
         '</section>';
 
-      /* QUICK PHOTO URL SWAP */
       if (AUTHOR_PHOTO_URL !== 'YOUR_PHOTO_URL_HERE') {
         container.querySelector('#cvp-author-photo').src =
           AUTHOR_PHOTO_URL;
