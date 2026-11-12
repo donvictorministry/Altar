@@ -11,7 +11,7 @@
       'data:image/svg+xml;charset=UTF-8,' +
       encodeURIComponent(
         '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 350 450">' +
-        '<rect width="450" height="650" fill="#EAF0F8"/>' +
+        '<rect width="180" height="180" fill="#EAF0F8"/>' +
         '<circle cx="175" cy="145" r="65" fill="#B7C8DF"/>' +
         '<path d="M55 450 Q65 275 175 275 Q285 275 295 450" fill="#B7C8DF"/>' +
         '</svg>'
