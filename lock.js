@@ -4,7 +4,7 @@
   'use strict';
 
   var CFG = {
-    API_URL: 'PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE',
+    API_URL: 'https://script.google.com/macros/s/AKfycbyE6Gl8TDkcVPeXsfs4w4lfM4QFJCOX11U9OMd3Yow6NjypoWCrMNc8N97PD4hziBZV4A/exec',
     PRODUCT: 'the-prayer-app',   /* must match PRODUCT in the Settings sheet */
     VERIFY_HOURS: 6,             /* how often an unlocked device re-checks its code (when online) */
     TIMEOUT_MS: 25000
