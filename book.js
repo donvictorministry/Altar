@@ -12,7 +12,7 @@
 
     /* LOGO: paste your hosted logo image URL here. It is used in the header, both
        side menus and the front cover, always inside a circle with a rotating gear ring. */
-    logo: 'https://app.donvictorministry.org.ng/book/ebook-icon.png',
+    logo: 'https://app.donvictorministry.org.ng/Prayers/prayer-icon.png',
 
     about: [
       'The Prayer App is a faith-based prayer companion for anyone who wants to pray with authority and expect God to answer. Built on scriptures such as Luke 10:19, Isaiah 54:17, Jeremiah 29:11 and Psalm 91, it leads you through prayer points for protection, deliverance, breakthrough, provision, healing, purpose and restoration.',
