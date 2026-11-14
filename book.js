@@ -1,19 +1,18 @@
-/* book.js - book metadata, offline copy of the unlocked content, and the text parser.
-   The chapters themselves live in the "Book" sheet and arrive only after a valid unlock.
-   Edit the placeholder values in META below. */
+/* book.js - book */
+
 (function () {
   'use strict';
 
   var META = {
     title: 'The Prayer App',
     subtitle: 'Prayer Points for Spiritual Authority, Divine Intervention, Breakthrough and Restoration',
-    author: 'Rev. Dr. Chris Johnson, PhD',
-    edition: 'Edition 1.0, 2026',
+    author: 'Rev. Dr. Don Victor, PhD',
+    edition: 'Edition 1., 2026',
     kicker: 'A Christian prayer companion',
 
     /* LOGO: paste your hosted logo image URL here. It is used in the header, both
        side menus and the front cover, always inside a circle with a rotating gear ring. */
-    logo: 'https://REPLACE-WITH-YOUR-HOSTED-URL/logo.png',
+    logo: 'https://app.donvictorministry.org.ng/book/ebook-icon.png',
 
     about: [
       'The Prayer App is a faith-based prayer companion for anyone who wants to pray with authority and expect God to answer. Built on scriptures such as Luke 10:19, Isaiah 54:17, Jeremiah 29:11 and Psalm 91, it leads you through prayer points for protection, deliverance, breakthrough, provision, healing, purpose and restoration.',
@@ -21,20 +20,19 @@
     ],
 
     /* Contact: replace every placeholder below */
-    email: 'ministry@example.org',
-    phone: '+10000000000',
-    whatsapp: '10000000000',
-    facebook: 'https://www.facebook.com/YOUR-PAGE',
+    email: 'donvictorministry@gmail.com',
+    phone: '+2347035794649',
+    whatsapp: '2348086590253',
+    facebook: 'https://www.facebook.com/Rev.DonVictor',
 
-    /* Link people get when they tap Share App. Leave empty to share the current page. */
     shareUrl: '',
-    shareText: 'Pray with "The Prayer App" by Rev. Dr. Chris Johnson.',
+    shareText: 'Pray with "The Prayer App" by Rev. Dr. Don Victor, PhD.',
 
     developer: {
-      name: 'Developer Name',
-      role: 'Software Developer',
-      bio: 'Write a short bio here. Describe who built this app and why.',
-      photo: 'https://REPLACE-WITH-YOUR-HOSTED-URL/developer.png'
+      name: 'Rev. Don Victor, PhD',
+      role: 'Prophet of God | Founder & Visionary | Trainer | Researcher | Full Stack Developer',
+      bio: 'Dr. Don Victor is an ordained Reverend Minister of the Lord Jesus Christ, scholar, interdisciplinary researcher, trainer, web developer, and software engineer. His work integrates Christian ministry, theological scholarship, education, research, and technological innovation to advance the Gospel and create meaningful global impact. Driven by a vision to reach six million souls for Christ, he has developed and founded diverse ministries, educational initiatives, and technology-driven platforms serving both online and offline communities.',
+      photo: 'https://app.donvictorministry.org.ng/gospel/dvg-logo-pic.png'
     }
   };
 
