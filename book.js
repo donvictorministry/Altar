@@ -32,7 +32,7 @@
       name: 'Rev. Don Victor, PhD',
       role: 'Prophet of God | Founder & Visionary | Trainer | Researcher | Full Stack Developer',
       bio: 'Dr. Don Victor is an ordained Reverend Minister of the Lord Jesus Christ, scholar, interdisciplinary researcher, trainer, web developer, and software engineer. His work integrates Christian ministry, theological scholarship, education, research, and technological innovation to advance the Gospel and create meaningful global impact. Driven by a vision to reach six million souls for Christ, he has developed and founded diverse ministries, educational initiatives, and technology-driven platforms serving both online and offline communities.',
-      photo: 'https://app.donvictorministry.org.ng/gospel/dvg-logo-pic.png'
+      photo: 'https://app.donvictorministry.org.ng/Prayers/dr-dvg.png'
     }
   };
 
