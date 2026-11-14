@@ -1,27 +1,8 @@
-/* app.js - the logic of The Prayer App. Phones and tablets only.
-
-   WHERE TO EDIT WHAT (search for the CAPITAL heading in this file):
-     Words of the info pages (About, How to Use, Terms...)  -> book.js  (Book.pages)
-     App title, author, edition, contacts, logo, developer  -> book.js  (META)
-     Cover page                                             -> cover-page.js
-     "What you get" modal and support amounts               -> support-modal.js  (CONFIG at the top)
-     Icons                                                  -> icons.js
-     Colours, sizes, spacing                                -> styles.css
-     Chapters and prayers                                   -> the Book sheet in Google Sheets
-
-   SECTIONS OF THIS FILE, in order:
-     HELPERS  ->  UI (spinner, toast, dialogs)  ->  THEME AND TEXT SIZE  ->  OVERLAYS
-     ->  NOTEPAD HOST  ->  LOGO WITH GEAR RING  ->  INFORMATION PAGES  ->  MENUS
-     ->  VIEWS AND NAVIGATION (cover, unlock, front, contents, reading page)
-     ->  TO-DO LIST  ->  INSTALL AND SHARE  ->  START
-*/
+/* app.js - Phones and Tablets only.*/
 (function () {
   'use strict';
   if (document.documentElement.classList.contains('blocked')) { return; }
 
-  /* ================================================================
-     HELPERS
-     ================================================================ */
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
   function esc(s) {
@@ -30,8 +11,6 @@
   function get(k, d) { try { var v = localStorage.getItem(k); return v === null ? d : v; } catch (e) { return d; } }
   function put(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
 
-  /* Access rule: anyone can open Notepad and the to-do list, but only readers
-     who unlocked the app with an access code can use them. */
   function hasAccess() { return Lock.hasToken() && Book.has(); }
 
   var ICON = window.ICON || {};   /* the icon paths live in icons.js */
@@ -41,9 +20,6 @@
     return '<svg viewBox="0 0 24 24" width="' + s + '" height="' + s + '" fill="currentColor" aria-hidden="true"><path d="' + ICON[name] + '"/></svg>';
   }
 
-  /* ================================================================
-     UI: SPINNER, TOAST, DIALOGS (ALL CENTERED, NO BROWSER ALERTS)
-     ================================================================ */
   var UI = window.UI = {};
   var spinCount = 0;
   UI.spinner = function (on, msg) {
@@ -107,9 +83,6 @@
     setTimeout(function () { sp.remove(); }, 600);
   });
 
-  /* ================================================================
-     THEME AND TEXT SIZE
-     ================================================================ */
   var root = document.documentElement;
   function theme() { return root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light'; }
   function setTheme(t) {
@@ -139,10 +112,6 @@
     if (r) { r.value = n; }
   }
 
-  /* ================================================================
-     OVERLAYS (menus and pages stack on top of each other; Android back
-     closes the page first, then the menu, then returns to the home page)
-     ================================================================ */
   var stack = [];
   var routes = {}, activeRoute = null, navItems = [], quickActions = [], menuBuilt = false, navCount = 0;
   function applyOv() {
@@ -180,9 +149,6 @@
     if (stack.length > depth) { stack.length = depth; applyOv(); }
   });
 
-  /* ================================================================
-     DV HOST SHELL: THE INTERFACE NOTEPAD.JS EXPECTS
-     ================================================================ */
   function removeGate() { var g = $('#npGate'); if (g) { g.remove(); } }
   function showGate(name) {
     var r = routes[name] || {}, label = r.title || 'This tool';
@@ -256,9 +222,6 @@
     if (after) { after(); }
   }
 
-  /* ================================================================
-     CIRCULAR LOGO / PHOTO WITH A ROTATING GEAR RING
-     ================================================================ */
   var GEAR_D = (function () {
     var n = 12, c = 50, ro = 49, rr = 42, rh = 36, step = Math.PI * 2 / n, d = '', i;
     function pt(r, a) { return (c + r * Math.cos(a)).toFixed(2) + ' ' + (c + r * Math.sin(a)).toFixed(2); }
@@ -298,9 +261,6 @@
     });
   }
 
-  /* ================================================================
-     INFORMATION PAGES (LEFT MENU)
-     ================================================================ */
   var M = Book.meta;
 
   /* Fills {title} {author} {edition} {email} {phone} from book.js, and **bold** text. */
@@ -339,9 +299,6 @@
     openSheet(p.title, '<div class="info' + (p.center ? ' center' : '') + '">' + renderBlocks(p.blocks) + '</div>', function () { fixImgs($('#sheetBody')); });
   }
 
-  /* ================================================================
-     MENUS
-     ================================================================ */
   function buildMenus() {
     $('#btnLeft').innerHTML = svg('menu');
     $('#btnRight').innerHTML = svg('more');
@@ -395,9 +352,6 @@
     $('#btnDark').addEventListener('click', function () { setTheme(theme() === 'dark' ? 'light' : 'dark'); });
   }
 
-  /* ================================================================
-     VIEWS AND NAVIGATION
-     ================================================================ */
   var cur = 'welcome';
   var view = $('#view'), main = $('#main');
 
@@ -435,8 +389,6 @@
   }
 
   var CODE_MSG = 'Hello, I would like to get an access code for The Prayer App.';
-  /* The cover page lives in cover-page.js. It is optional: if that file is missing
-     or broken, the app skips it and opens the access-code screen. */
   function renderWelcome() {
     var CP = window.CoverPage;
     if (CP && typeof CP.render === 'function') {
@@ -545,9 +497,6 @@
     if ($('#pgFront')) { $('#pgFront').addEventListener('click', function () { go('front'); }); }
   }
 
-  /* ================================================================
-     TO-DO LIST
-     ================================================================ */
   function todos() { try { return JSON.parse(get('prayer_todos', '[]')) || []; } catch (e) { return []; } }
   function saveTodos(t) { put('prayer_todos', JSON.stringify(t)); }
   function openTodo() {
@@ -603,10 +552,7 @@
     saveTodos(list); drawTodo(); UI.toast('Task added', 'success');
     $('#todoText').focus();
   }
-
-  /* ================================================================
-     INSTALL AND SHARE
-     ================================================================ */
+  
   var deferred = null;
   window.addEventListener('beforeinstallprompt', function (e) { e.preventDefault(); deferred = e; });
   window.addEventListener('appinstalled', function () { deferred = null; UI.toast('App installed', 'success'); });
@@ -633,9 +579,6 @@
     UI.dialog({ type: 'info', title: 'Share this link', message: url });
   }
 
-  /* ================================================================
-     START
-     ================================================================ */
   function start() {
     buildMenus();
     setFont(fontSize());
